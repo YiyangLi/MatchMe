@@ -1,0 +1,159 @@
+***********Pre-run********
+http://localhost:86/action/AddUser?UserName=A@gmail.com&Balance=10000.00
+http://localhost:86/action/AddUser?UserName=B@gmail.com&Balance=10000.00
+http://localhost:86/action/AddUser?UserName=C@gmail.com&Balance=10000.00
+http://localhost:86/action/AddCompany?Symbol=AAPL&Volume=5&Price=100.00
+http://localhost:86/action/AddCompany?Symbol=IBM&Volume=5&Price=50.00
+http://localhost:86/action/AddCompany?Symbol=MSFT&Volume=5&Price=25.00
+
+
+**************Test 1, A Buy/Sell CAT from the market *****
+
+http://localhost:86/action/PlaceAnOrder?UserName=A@gmail.com&Symbol=CAT&Volume=5&OrderType=Market&OrderSide=Buy
+OrderPlaceError, as the company CAT doesn't exist
+
+******************************
+
+**************Test 2, A buy AAPL, type: Market, from the market *****
+
+
+http://localhost:86/action/PlaceAnOrder?UserName=A@gmail.com&Symbol=AAPL&Volume=5&OrderType=Market&OrderSide=Buy
+
+
+Placed
+
+http://localhost:86/db/GetUserInfo?UserName=A@gmail.com
+
+Balance adjusted --> 10000 - 5 * 100 - 3
+
+
+******************************
+
+**************Test 3, B buy IBM, type: Limit, Price: 10, from the market *****
+
+http://localhost:86/action/PlaceAnOrder?UserName=B@gmail.com&Symbol=IBM&Volume=5&OrderType=Limit&Price=80&OrderSide=Buy
+
+Placed
+
+http://localhost:86/db/GetUserInfo?UserName=B@gmail.com
+
+Balance adjusted --> 10000 - 5 * 80 - 3 (though the market price is 50)
+
+******************************
+
+**************Test 4, C buy MSFT, type: Limit, Price: 2, from the market *****
+
+http://localhost:86/action/PlaceAnOrder?UserName=C@gmail.com&Symbol=MSFT&Volume=5&OrderType=Limit&Price=2&OrderSide=Buy
+
+Order turn to New, waiting
+
+http://localhost:86/db/GetUserInfo?UserName=C@gmail.com
+Balance remains the same, while the order is alive:
+http://localhost:86/db/GetLiveOrders
+
+(Market asks for 25 to sell, but the trade C offer only 2 to buy)
+
+
+******************************
+
+*************Test 5, now A contains 5 AAPL, B contains 5 IBM, C contains nothing ************
+http://localhost:86/db/GetPosition
+
+A wants to profit, asking for 200 to sell:
+http://localhost:86/action/PlaceAnOrder?UserName=A@gmail.com&Symbol=AAPL&Volume=5&OrderType=Limit&Price=200&OrderSide=Sell
+
+Order goes alive, waiting for buyer: 
+http://localhost:86/db/GetLiveOrders
+
+well, C could accept it, whatever the price is, 
+http://localhost:86/action/PlaceAnOrder?UserName=C@gmail.com&Symbol=AAPL&Volume=5&OrderType=Market&OrderSide=Buy
+
+the order is filled, the alive order from A is filled, while it's moved to C's position:
+http://localhost:86/db/GetLiveOrders
+http://localhost:86/db/GetPosition
+
+A doesn't have any positions, let's check A's balance:
+http://localhost:86/db/GetUserInfo?UserName=A@gmail.com
+
+great, A profits 500 totally, but he has to pay $6 as commission to brokers. 
+
+
+***************************
+
+*************Test 6, AAPL becomes very popular************
+
+B wants to buy it, he prefers to offer $250, and long 2 shares
+
+http://localhost:86/action/PlaceAnOrder?UserName=B@gmail.com&Symbol=AAPL&Volume=2&OrderType=Limit&Price=250&OrderSide=Buy
+
+
+the order is hanging there as C is waiting for a more generous buyer, here A comes:
+
+http://localhost:86/action/PlaceAnOrder?UserName=A@gmail.com&Symbol=AAPL&Volume=2&OrderType=Limit&Price=300&OrderSide=Buy
+
+Wow, A could offer 300, C can't wait to sell it. 
+
+http://localhost:86/action/PlaceAnOrder?UserName=C@gmail.com&Symbol=AAPL&Volume=2&OrderType=Market&OrderSide=Sell
+
+Nice shot! now, A gets 2 AAPL, B still holds IBM, C gets 3 AAPL:
+
+http://localhost:86/db/GetPosition
+
+***************************
+
+*************Test 7, let's play some complicated, there is a new rising star called GOOG *******
+
+
+http://localhost:86/action/AddCompany?Symbol=GOOG&Volume=5&Price=1000.00
+
+everyone wants to get it, including the new trader L:
+
+http://localhost:86/action/AddUser?UserName=L@gmail.com&Balance=10000.00
+
+He spends half of his balance to get all GOOG. 
+
+http://localhost:86/action/PlaceAnOrder?UserName=L@gmail.com&Symbol=GOOG&Volume=5&OrderType=Market&OrderSide=Buy
+
+He wants to profits, so he sets a limit sell order @2000
+
+http://localhost:86/action/PlaceAnOrder?UserName=L@gmail.com&Symbol=GOOG&Volume=2&OrderType=Limit&Price=2000&OrderSide=Sell
+
+C doesn't buy the deal, he is enjoying the apple deal, However, A and B are interested in GOOG:
+
+http://localhost:86/action/PlaceAnOrder?UserName=A@gmail.com&Symbol=GOOG&Volume=2&OrderType=Limit&Price=1800&OrderSide=Buy
+
+http://localhost:86/action/PlaceAnOrder?UserName=B@gmail.com&Symbol=GOOG&Volume=2&OrderType=Limit&Price=1900&OrderSide=Buy
+
+The orders are alive but none are filled:
+
+http://localhost:86/db/GetLiveOrders
+
+
+C then realized difference between a hardware company and an Internet company, C can't wait to get the deal, placing a market order on GOOG:
+
+http://localhost:86/action/PlaceAnOrder?UserName=C@gmail.com&Symbol=GOOG&Volume=2&OrderType=Market&OrderSide=Buy
+
+now, C gets it.
+
+L has 3 remaining GOOG, C has 2 GOOG, L profits a lot from it, let's check everyone's balance:
+http://localhost:86/db/GetUserInfo
+
+L wants to clean the position, he places a market sell order to match A and B's requests:
+
+http://localhost:86/action/PlaceAnOrder?UserName=L@gmail.com&Symbol=GOOG&Volume=3&OrderType=Market&OrderSide=Sell
+
+So, there is a buy order waiting to be matched, which is A's order @1800.
+http://localhost:86/db/GetLiveOrders
+http://localhost:86/db/GetPosition
+
+
+*****************************************************************
+
+
+
+
+
+
+
+
+

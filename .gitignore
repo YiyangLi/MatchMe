@@ -1,0 +1,104 @@
+/SolutionInfo.cs
+/version.txt
+/tags.csv
+version2.h
+*.opensdf
+**/*.opensdf
+/*.opensdf
+LogService.opensdf
+
+#OS junk files
+[Tt]humbs.db
+*.DS_Store
+
+#Merge .orig files
+*.orig
+
+#Visual Studio files
+*.[Oo]bj
+*.user
+*.aps
+*.pch
+*.vspscc
+*.vssscc
+*_i.c
+*_p.c
+*_i.h
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.[Cc]ache
+*.ilk
+*.log
+*.lib
+*.sbr
+*.sdf
+*.unsuccessfulbuild
+*.tlog
+ipch/
+obj/
+[Bb]in
+[Dd]ebug*/
+[Rr]elease*/
+do32/
+ro32/
+Ankh.NoLoad
+*.idb
+*.exp
+/BuildOutput/
+
+#MonoDevelop
+*.pidb
+*.userprefs
+
+#Tooling
+_ReSharper*/
+*.resharper
+[Tt]est[Rr]esult*
+*.sass-cache
+
+#Project files
+[Bb]uild/
+
+#Subversion files
+.svn
+
+# Office Temp Files
+~$*
+
+#NuGet
+packages/
+*.nupkg
+
+packages.props
+packages.restore_status
+package.wxi
+tfs_workspace_*/
+
+#ncrunch
+*ncrunch*
+*crunch*.local.xml
+
+# visual studio database projects
+*.dbmdl
+
+#output files
+*.pdb
+*.dll
+*.exe
+*.lib
+*.obj
+*.map
+
+#Test Files
+TestResults/
+
+#Ignore solutions except in root
+*.sln
+!/*.sln
+
+
+#allow NuGet.exe
+!.nuget/NuGet.exe
